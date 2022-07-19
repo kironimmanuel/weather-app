@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-
+import loader from './assets/loader.gif'
 import Display from './components/ui/Display'
 import Cities from './components/ui/Cities'
 import InfoCard from './components/ui/InfoCard'
@@ -11,25 +11,36 @@ const key = process.env.REACT_APP_ACCESS_KEY
 
 function App() {
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [weather, setWeather] = useState([])
   const [city, setCity] = useState('frankfurt')
+  const [backgroundImage, setBackgroundImage] = useState('')
 
   const inputRef = useRef(null)
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${key}`
 
   useEffect(() => {
     const getData = async () => {
       setLoading(true)
-      try {
-        const response = await axios(url)
-        setLoading(false)
-        setWeather(Array.of(response.data))
-      } catch (error) {
-        setLoading(false)
-        console.log(error)
-      }
+
+      await Promise.allSettled([
+        axios(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${key}`
+        ),
+        fetch(`https://source.unsplash.com/1600x900/?${city}`),
+      ])
+        .then(results => {
+          const [weather, backgroundImage] = results
+          const status = 'fulfilled'
+          if (weather.status === status) {
+            setWeather(Array.of(weather.value.data))
+          }
+          if (backgroundImage.status === status) {
+            setBackgroundImage(backgroundImage.value.url)
+          }
+          setLoading(false)
+        })
+        .catch(error => console.log(error))
     }
+
     getData()
   }, [city])
 
@@ -46,13 +57,13 @@ function App() {
     <div
       className="weather-app"
       style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url('https://source.unsplash.com/1600x900/?${city}')`,
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),url('${backgroundImage}')`,
       }}>
       {weather.map(item => {
         return (
           <>
             {loading ? (
-              <h3 className="loading">Loading...</h3>
+              <img src={loader} className="loading" />
             ) : (
               <Display key={nanoid()} {...item} />
             )}

@@ -76,8 +76,7 @@ h3 {
   font-size: 1.5em;
 }
 .loading {
-  position: absolute;
-  margin: 1.5rem;
+  transform: scale(0.5);
 }
 .city-time,
 .temp,
