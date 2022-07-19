@@ -23,7 +23,8 @@ function App() {
 
       await Promise.allSettled([
         axios(
-          `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${key}`
+          // `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${key}`
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=9ef8c7e013a6afbcaa89cbd55e5dc26e`
         ),
         fetch(`https://source.unsplash.com/1600x900/?${city}`),
       ])
